@@ -1,0 +1,11 @@
+# Intellij
+culter-domain.idea
+culter-kudago-updater.idea
+culter-rest-server.idea
+.iml
+.iws
+
+# Maven
+log
+target
+logs
