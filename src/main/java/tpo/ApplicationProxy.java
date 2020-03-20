@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
 
 public class ApplicationProxy {
     private static final String TRACK_OUTPUT_PATTERN = "%d) '%s' - '%s'";
-    private static final String PLAYLIST_OUTPUT_PATTERN = "%d) плей лист '%s' автора '%s' содержит %s";
+    private static final String PLAYLIST_OUTPUT_PATTERN = "%d) Плей лист '%s' автора '%s' содержит %s";
+    private static final String ARTIST_OUTPUT_PATTERN = "%d) '%s', список жанров: %s";
 
     private ConsoleService consoleService;
     private SpotifyMusicService spotifyMusicService;
@@ -41,12 +42,7 @@ public class ApplicationProxy {
             Track[] tracks = spotifyMusicService.searchTracks(consoleService.input()).getItems();
 
             consoleService.show("Введите номер выбранной песни. Для отмены выберите последний пункт");
-            for(int i = 0; i < tracks.length; i++){
-                consoleService.show(String.format(TRACK_OUTPUT_PATTERN,
-                        i,
-                        tracks[i].getName(),
-                        Arrays.stream(tracks[i].getArtists()).map(ArtistSimplified::getName).collect(Collectors.joining(", "))));
-            }
+            showTracks(tracks);
 
             consoleService.show(String.format("%d) Вернуться обратно", tracks.length));
             Integer selectedTrack = TypeConverter.tryParseInt(consoleService.input());
@@ -63,10 +59,6 @@ public class ApplicationProxy {
         }
     }
 
-    public void showCurrentPlaylists() {
-        showPlaylist(getCurrentPlaylists());
-    }
-
     public PlaylistSimplified[] getCurrentPlaylists(){
         try {
 
@@ -75,16 +67,6 @@ public class ApplicationProxy {
             show(ex.getMessage());
 
             return new PlaylistSimplified[0];
-        }
-    }
-
-    public void showPlaylist(PlaylistSimplified[] playlist) {
-        for (int i = 0; i < playlist.length; i++) {
-            PlaylistSimplified playlistSimplified = playlist[i];
-
-            consoleService.show(String.format(PLAYLIST_OUTPUT_PATTERN, i, playlistSimplified.getName(),
-                    playlistSimplified.getOwner().getDisplayName(),
-                    Formatter.getFormattedStringWithTrackCount(playlistSimplified.getTracks().getTotal())));
         }
     }
 
@@ -135,6 +117,53 @@ public class ApplicationProxy {
         } catch (SpotifyWebApiException | IOException ex) {
             show(ex.getMessage());
             return Optional.empty();
+        }
+    }
+
+    public Artist[] getPersonalArtists(){
+        try {
+            return spotifyMusicService.getPersonalTopArtists().getItems();
+        } catch (SpotifyWebApiException | IOException ex) {
+            show(ex.getMessage());
+            return new Artist[0];
+        }
+    }
+
+    public Track[] getPersonalTracks(){
+        try {
+            return spotifyMusicService.getPersonalTopTracks().getItems();
+        } catch (SpotifyWebApiException | IOException ex) {
+            show(ex.getMessage());
+            return new Track[0];
+        }
+    }
+
+    public void showTracks(Track[] tracks){
+        for(int i = 0; i < tracks.length; i++){
+            consoleService.show(String.format(TRACK_OUTPUT_PATTERN,
+                    i,
+                    tracks[i].getName(),
+                    Arrays.stream(tracks[i].getArtists()).map(ArtistSimplified::getName).collect(Collectors.joining(", "))));
+        }
+    }
+
+    public void showArtists(Artist[] artists){
+        for(int i = 0; i < artists.length; i++){
+            Artist artist = artists[i];
+            show(String.format(ARTIST_OUTPUT_PATTERN,
+                    i,
+                    artist.getName(),
+                    String.join(", ", artist.getGenres())));
+        }
+    }
+
+    public void showPlaylist(PlaylistSimplified[] playlist) {
+        for (int i = 0; i < playlist.length; i++) {
+            PlaylistSimplified playlistSimplified = playlist[i];
+
+            show(String.format(PLAYLIST_OUTPUT_PATTERN, i, playlistSimplified.getName(),
+                    playlistSimplified.getOwner().getDisplayName(),
+                    Formatter.getFormattedStringWithTrackCount(playlistSimplified.getTracks().getTotal())));
         }
     }
 }

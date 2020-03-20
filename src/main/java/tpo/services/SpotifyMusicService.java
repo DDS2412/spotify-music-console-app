@@ -7,6 +7,8 @@ import com.wrapper.spotify.model_objects.credentials.AuthorizationCodeCredential
 import com.wrapper.spotify.model_objects.special.SnapshotResult;
 import com.wrapper.spotify.model_objects.specification.*;
 import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest;
+import com.wrapper.spotify.requests.data.personalization.simplified.GetUsersTopArtistsRequest;
+import com.wrapper.spotify.requests.data.personalization.simplified.GetUsersTopTracksRequest;
 import com.wrapper.spotify.requests.data.playlists.AddTracksToPlaylistRequest;
 import com.wrapper.spotify.requests.data.playlists.CreatePlaylistRequest;
 import com.wrapper.spotify.requests.data.playlists.GetListOfCurrentUsersPlaylistsRequest;
@@ -73,6 +75,24 @@ public class SpotifyMusicService {
                 .build();
 
         return createPlaylistRequest.execute();
+    }
+
+    public Paging<Track> getPersonalTopTracks() throws IOException, SpotifyWebApiException {
+        GetUsersTopTracksRequest getUsersTopTracksRequest = spotifyApi
+                .getUsersTopTracks()
+                .limit(10)
+                .build();
+
+        return getUsersTopTracksRequest.execute();
+    }
+
+    public Paging<Artist> getPersonalTopArtists() throws IOException, SpotifyWebApiException{
+        GetUsersTopArtistsRequest getUsersTopArtistsRequest = spotifyApi
+                .getUsersTopArtists()
+                .limit(10)
+                .build();
+
+        return getUsersTopArtistsRequest.execute();
     }
 
     private void setExtraSpotifyApiParams(String code) {

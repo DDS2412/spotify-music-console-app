@@ -9,8 +9,7 @@ public class GetListOfCurrentUsersPlaylists  implements ConsoleCommand{
     @Override
     public void execute(ApplicationProxy applicationProxy) {
         try {
-            applicationProxy.showCurrentPlaylists();
-
+            applicationProxy.showPlaylist(applicationProxy.getCurrentPlaylists());
         } catch (Exception ex) {
             applicationProxy.show(ex.getMessage());
         }

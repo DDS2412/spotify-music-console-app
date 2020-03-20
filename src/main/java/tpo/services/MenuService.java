@@ -54,5 +54,7 @@ public class MenuService {
         consoleCommands.put("add_track", new FindAndAddMusicToPlaylist());
         consoleCommands.put("user", new GetUserInfo());
         consoleCommands.put("create_playlist", new CreateNewPlaylist());
+        consoleCommands.put("personal_t", new ShowTopTracks());
+        consoleCommands.put("personal_a", new ShowTopArtists());
     }
 }
