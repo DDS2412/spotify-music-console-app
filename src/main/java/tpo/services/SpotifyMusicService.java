@@ -4,10 +4,14 @@ import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.SpotifyHttpManager;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.credentials.AuthorizationCodeCredentials;
-import com.wrapper.spotify.model_objects.specification.Paging;
-import com.wrapper.spotify.model_objects.specification.PlaylistSimplified;
+import com.wrapper.spotify.model_objects.special.SnapshotResult;
+import com.wrapper.spotify.model_objects.specification.*;
 import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest;
+import com.wrapper.spotify.requests.data.playlists.AddTracksToPlaylistRequest;
+import com.wrapper.spotify.requests.data.playlists.CreatePlaylistRequest;
 import com.wrapper.spotify.requests.data.playlists.GetListOfCurrentUsersPlaylistsRequest;
+import com.wrapper.spotify.requests.data.search.simplified.SearchTracksRequest;
+import com.wrapper.spotify.requests.data.users_profile.GetCurrentUsersProfileRequest;
 
 import java.io.IOException;
 
@@ -30,16 +34,45 @@ public class SpotifyMusicService {
         setExtraSpotifyApiParams(code);
     }
 
-    public String getAccessToken(){
-        return spotifyApi.getAccessToken();
-    }
-
     public Paging<PlaylistSimplified> getListOfCurrentUsersPlaylists() throws IOException, SpotifyWebApiException {
         GetListOfCurrentUsersPlaylistsRequest getListOfCurrentUsersPlaylistsRequest = spotifyApi
                 .getListOfCurrentUsersPlaylists()
                 .build();
 
         return getListOfCurrentUsersPlaylistsRequest.execute();
+    }
+
+    public Paging<Track> searchTracks(String query) throws IOException, SpotifyWebApiException {
+        SearchTracksRequest searchTracksRequest = spotifyApi
+                .searchTracks(query)
+                .limit(9)
+                .build();
+
+        return searchTracksRequest.execute();
+    }
+
+    public void addTracksToPlayList(String playListId, String[] trackUris) throws IOException, SpotifyWebApiException {
+        AddTracksToPlaylistRequest addTracksToPlaylistRequest = spotifyApi
+                .addTracksToPlaylist(playListId, trackUris)
+                .build();
+
+        SnapshotResult snapshotResult = addTracksToPlaylistRequest.execute();
+    }
+
+    public User getUserInfo() throws IOException, SpotifyWebApiException {
+        GetCurrentUsersProfileRequest getCurrentUsersProfileRequest = spotifyApi
+                .getCurrentUsersProfile()
+                .build();
+
+        return getCurrentUsersProfileRequest.execute();
+    }
+
+    public Playlist createNewPlaylist(String userId, String playlistName) throws IOException, SpotifyWebApiException {
+        CreatePlaylistRequest createPlaylistRequest = spotifyApi
+                .createPlaylist(userId, playlistName)
+                .build();
+
+        return createPlaylistRequest.execute();
     }
 
     private void setExtraSpotifyApiParams(String code) {

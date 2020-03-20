@@ -1,28 +1,27 @@
 package tpo.services;
 
+import tpo.ApplicationProxy;
 import tpo.commands.*;
 
 import java.util.HashMap;
 
 public class MenuService {
-    private SpotifyMusicService spotifyMusicService;
-    private ConsoleService consoleService;
+    private ApplicationProxy applicationProxy;
 
     private HashMap<String, ConsoleCommand> consoleCommands = new HashMap<>();
 
     public MenuService(SpotifyMusicService spotifyMusicService){
-        this.spotifyMusicService = spotifyMusicService;
-        this.consoleService = new ConsoleService();
+        applicationProxy = new ApplicationProxy(new ConsoleService(), spotifyMusicService);
 
         setConsoleCommands();
     }
 
     public void Run() {
-        consoleService.show("Введите команду для начала работы!");
+        applicationProxy.show("Введите команду для начала работы!");
 
         do {
-            executeCommand(consoleService.input());
-
+            executeCommand(applicationProxy.input());
+            applicationProxy.show("Выполнение команды завершено, для продолжения введите следующую команду");
         } while (true);
     }
 
@@ -30,10 +29,10 @@ public class MenuService {
         command = command.toLowerCase();
 
         if(consoleCommands.containsKey(command)){
-            consoleCommands.get(command).execute(consoleService, spotifyMusicService);
+            consoleCommands.get(command).execute(applicationProxy);
 
         } else {
-            consoleService.show(String.format("Команды %s не существует!", command));
+            applicationProxy.show(String.format("Команды %s не существует!", command));
         }
     }
 
@@ -41,9 +40,9 @@ public class MenuService {
         consoleCommands.put("exit", new ExitCommand());
         consoleCommands.put("help", new ConsoleCommand() {
             @Override
-            public void execute(ConsoleService consoleService, SpotifyMusicService spotifyMusicService) {
+            public void execute(ApplicationProxy applicationProxy) {
                 consoleCommands
-                        .forEach((commandName, consoleCommand) -> consoleService.show(String.format("%s - %s", commandName, consoleCommand.getCommandInfo())));
+                        .forEach((commandName, consoleCommand) -> applicationProxy.show(String.format("%s - %s", commandName, consoleCommand.getCommandInfo())));
             }
 
             @Override
@@ -51,7 +50,9 @@ public class MenuService {
                 return "Отображение информации о всех командах";
             }
         });
-        consoleCommands.put("access_token", new ShowAccessToken());
         consoleCommands.put("get_playlist", new GetListOfCurrentUsersPlaylists());
+        consoleCommands.put("add_track", new FindAndAddMusicToPlaylist());
+        consoleCommands.put("user", new GetUserInfo());
+        consoleCommands.put("create_playlist", new CreateNewPlaylist());
     }
 }
