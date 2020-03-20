@@ -63,19 +63,14 @@ public class ApplicationProxy {
         }
     }
 
-    public PlaylistSimplified[] showCurrentPlaylists() {
+    public void showCurrentPlaylists() {
+        showPlaylist(getCurrentPlaylists());
+    }
+
+    public PlaylistSimplified[] getCurrentPlaylists(){
         try {
-            PlaylistSimplified[] currentUsersPlaylists = spotifyMusicService.getListOfCurrentUsersPlaylists().getItems();
 
-            for(int i = 0; i < currentUsersPlaylists.length; i++){
-                PlaylistSimplified playlistSimplified = currentUsersPlaylists[i];
-
-                consoleService.show(String.format(PLAYLIST_OUTPUT_PATTERN, i, playlistSimplified.getName(),
-                        playlistSimplified.getOwner().getDisplayName(),
-                        Formatter.getFormattedStringWithTrackCount(playlistSimplified.getTracks().getTotal())));
-            }
-
-            return currentUsersPlaylists;
+            return spotifyMusicService.getListOfCurrentUsersPlaylists().getItems();
         } catch (SpotifyWebApiException | IOException ex) {
             show(ex.getMessage());
 
@@ -83,15 +78,29 @@ public class ApplicationProxy {
         }
     }
 
-    public Optional<PlaylistSimplified> selectPlaylist() {
-        consoleService.show("Введите номер выбранного плейлиста. Для отмены выберите последний пункт");
-        PlaylistSimplified[] playlists = showCurrentPlaylists();
+    public void showPlaylist(PlaylistSimplified[] playlist) {
+        for (int i = 0; i < playlist.length; i++) {
+            PlaylistSimplified playlistSimplified = playlist[i];
 
-        consoleService.show(String.format("%d) Вернуться обратно", playlists.length));
+            consoleService.show(String.format(PLAYLIST_OUTPUT_PATTERN, i, playlistSimplified.getName(),
+                    playlistSimplified.getOwner().getDisplayName(),
+                    Formatter.getFormattedStringWithTrackCount(playlistSimplified.getTracks().getTotal())));
+        }
+    }
+
+    public Optional<PlaylistSimplified> selectPlaylist() {
+        PlaylistSimplified[] playlists = getCurrentPlaylists();
+        consoleService.show(String.format("Введите номер желаемого плейлиста или %d для создания нового. Для отмены выберите последний пункт", playlists.length));
+
+        showPlaylist(playlists);
+        consoleService.show(String.format("%d) Создать новый плейлист", playlists.length));
+        consoleService.show(String.format("%d) Вернуться обратно", playlists.length+1));
         Integer selectedPlayList = TypeConverter.tryParseInt(consoleService.input());
 
-        if (selectedPlayList != null &&  selectedPlayList != playlists.length){
+        if(selectedPlayList != null && selectedPlayList != playlists.length + 1 && selectedPlayList != playlists.length){
             return Optional.of(playlists[selectedPlayList]);
+        } else if (selectedPlayList == playlists.length){
+            return createNewPlaylist().map(TypeConverter::convertPlaylistToSimplified);
         } else {
             return Optional.empty();
         }
