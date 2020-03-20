@@ -1,5 +1,6 @@
 package tpo.services;
 
+import com.neovisionaries.i18n.CountryCode;
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.SpotifyHttpManager;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
@@ -7,6 +8,7 @@ import com.wrapper.spotify.model_objects.credentials.AuthorizationCodeCredential
 import com.wrapper.spotify.model_objects.special.SnapshotResult;
 import com.wrapper.spotify.model_objects.specification.*;
 import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest;
+import com.wrapper.spotify.requests.data.browse.GetRecommendationsRequest;
 import com.wrapper.spotify.requests.data.personalization.simplified.GetUsersTopArtistsRequest;
 import com.wrapper.spotify.requests.data.personalization.simplified.GetUsersTopTracksRequest;
 import com.wrapper.spotify.requests.data.playlists.AddTracksToPlaylistRequest;
@@ -93,6 +95,17 @@ public class SpotifyMusicService {
                 .build();
 
         return getUsersTopArtistsRequest.execute();
+    }
+
+    public TrackSimplified[]  getMusicRecommendations(String seed_artists, String seed_tracks) throws IOException, SpotifyWebApiException {
+        GetRecommendationsRequest getRecommendationsRequest = spotifyApi
+                .getRecommendations()
+                .seed_artists(seed_artists)
+                .seed_tracks(seed_tracks)
+                .limit(10)
+                .build();
+
+        return getRecommendationsRequest.execute().getTracks();
     }
 
     private void setExtraSpotifyApiParams(String code) {

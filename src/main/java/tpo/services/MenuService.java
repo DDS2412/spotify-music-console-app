@@ -26,7 +26,7 @@ public class MenuService {
     }
 
     private void executeCommand(String command) {
-        command = command.toLowerCase();
+        command = command.toLowerCase().strip();
 
         if(consoleCommands.containsKey(command)){
             consoleCommands.get(command).execute(applicationProxy);
@@ -54,7 +54,8 @@ public class MenuService {
         consoleCommands.put("add_track", new FindAndAddMusicToPlaylist());
         consoleCommands.put("user", new GetUserInfo());
         consoleCommands.put("create_playlist", new CreateNewPlaylist());
-        consoleCommands.put("personal_t", new ShowTopTracks());
-        consoleCommands.put("personal_a", new ShowTopArtists());
+        consoleCommands.put("top_track", new ShowTopTracks());
+        consoleCommands.put("top_artist", new ShowTopArtists());
+        consoleCommands.put("r_tracks", new ShowMusicRecommendations());
     }
 }

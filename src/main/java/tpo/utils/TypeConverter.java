@@ -3,6 +3,8 @@ package tpo.utils;
 import com.wrapper.spotify.model_objects.miscellaneous.PlaylistTracksInformation;
 import com.wrapper.spotify.model_objects.specification.Playlist;
 import com.wrapper.spotify.model_objects.specification.PlaylistSimplified;
+import com.wrapper.spotify.model_objects.specification.Track;
+import com.wrapper.spotify.model_objects.specification.TrackSimplified;
 
 public class TypeConverter {
     public static Integer tryParseInt(String number) {
@@ -28,5 +30,26 @@ public class TypeConverter {
                 .setTracks(new PlaylistTracksInformation.Builder().setHref(playlist.getTracks().getHref()).setTotal(playlist.getTracks().getTotal()).build())
                 .setType(playlist.getType())
                 .setUri(playlist.getUri()).build();
+    }
+
+    public static TrackSimplified convertTrackToSimplified(Track track){
+        return new TrackSimplified
+                .Builder()
+                .setArtists(track.getArtists())
+                .setAvailableMarkets(track.getAvailableMarkets())
+                .setDiscNumber(track.getDiscNumber())
+                .setDurationMs(track.getDurationMs())
+                .setExplicit(track.getIsExplicit())
+                .setExternalUrls(track.getExternalUrls())
+                .setHref(track.getHref())
+                .setId(track.getId())
+                .setIsPlayable(track.getIsPlayable())
+                .setLinkedFrom(track.getLinkedFrom())
+                .setName(track.getName())
+                .setPreviewUrl(track.getPreviewUrl())
+                .setTrackNumber(track.getTrackNumber())
+                .setType(track.getType())
+                .setUri(track.getUri())
+                .build();
     }
 }
