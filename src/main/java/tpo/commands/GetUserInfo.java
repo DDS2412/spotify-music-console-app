@@ -6,8 +6,10 @@ public class GetUserInfo implements ConsoleCommand {
     private static final String COMMAND_INFO = "Информация о пользователе";
 
     @Override
-    public void execute(ApplicationProxy applicationProxy) {
+    public Boolean execute(ApplicationProxy applicationProxy) {
         applicationProxy.displayUserInfo();
+
+        return false;
     }
 
     @Override

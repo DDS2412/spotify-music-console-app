@@ -6,9 +6,11 @@ public class ShowTopTracks implements ConsoleCommand {
     private static final String COMMAND_INFO = "Рекомендуемые треки";
 
     @Override
-    public void execute(ApplicationProxy applicationProxy) {
+    public Boolean execute(ApplicationProxy applicationProxy) {
         applicationProxy.show("Список треков для вас");
         applicationProxy.showTracks(applicationProxy.getPersonalTracks());
+
+        return false;
     }
 
     @Override

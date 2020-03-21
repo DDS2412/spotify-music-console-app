@@ -6,8 +6,10 @@ public class CreateNewPlaylist implements ConsoleCommand {
     private static final String COMMAND_INFO = "Создание нового плейлиста";
 
     @Override
-    public void execute(ApplicationProxy applicationProxy) {
+    public Boolean execute(ApplicationProxy applicationProxy) {
         applicationProxy.createNewPlaylist();
+
+        return false;
     }
 
     @Override

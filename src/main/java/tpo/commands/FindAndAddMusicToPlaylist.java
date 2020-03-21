@@ -6,10 +6,10 @@ public class FindAndAddMusicToPlaylist implements ConsoleCommand {
     private static final String COMMAND_INFO = "Поиск и добавление песни в плей лист";
 
     @Override
-    public void execute(ApplicationProxy applicationProxy) {
+    public Boolean execute(ApplicationProxy applicationProxy) {
         try {
             applicationProxy
-                    .selectTrack()
+                    .selectTrack(applicationProxy.selectTracksFrom())
                     .ifPresent(track -> applicationProxy
                             .selectPlaylist()
                             .ifPresent(playlist -> applicationProxy.addTracksToPlaylist(track, playlist)));
@@ -17,6 +17,8 @@ public class FindAndAddMusicToPlaylist implements ConsoleCommand {
         } catch (Exception ex){
             applicationProxy.show(ex.getMessage());
         }
+
+        return false;
     }
 
     @Override

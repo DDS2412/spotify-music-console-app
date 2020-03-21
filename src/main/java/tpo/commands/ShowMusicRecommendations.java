@@ -7,12 +7,14 @@ public class ShowMusicRecommendations implements ConsoleCommand {
     private static final String COMMAND_INFO = "Отображение рекомендованной музыки";
 
     @Override
-    public void execute(ApplicationProxy applicationProxy) {
+    public Boolean execute(ApplicationProxy applicationProxy) {
         TrackSimplified[] musicRecommendations = applicationProxy.getMusicRecommendations();
         if(musicRecommendations.length > 0){
             applicationProxy.show("Подборка рекомендованной музыки");
             applicationProxy.showTracks(musicRecommendations);
         }
+
+        return false;
     }
 
     @Override

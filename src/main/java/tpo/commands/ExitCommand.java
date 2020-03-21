@@ -6,9 +6,10 @@ public class ExitCommand implements ConsoleCommand {
     private static final String COMMAND_INFO = "Завершение работы программы";
 
     @Override
-    public void execute(ApplicationProxy applicationProxy) {
+    public Boolean execute(ApplicationProxy applicationProxy) {
         applicationProxy.show("Завершение работы!");
-        applicationProxy.exit();
+
+        return true;
     }
 
     @Override

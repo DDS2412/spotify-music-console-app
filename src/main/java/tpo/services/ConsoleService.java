@@ -17,10 +17,6 @@ public class ConsoleService {
         return scanner.nextLine();
     }
 
-    public void exit(){
-        System.exit(0);
-    }
-
     public void clearConsole()
     {
         try
@@ -31,14 +27,10 @@ public class ConsoleService {
             {
                 Runtime.getRuntime().exec("cls");
             }
-            else
-            {
-                Runtime.getRuntime().exec("clear");
-            }
         }
         catch (Exception ex)
         {
-            show(ex.getMessage());
+            show("");
         }
     }
 }

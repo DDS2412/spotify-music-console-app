@@ -30,11 +30,9 @@ public class ApplicationProxy {
         consoleService.show(text);
     }
 
-    public void exit(){
-        consoleService.exit();
-    }
-
     public String input() { return consoleService.input(); }
+
+    public void clear() { consoleService.clearConsole(); }
 
     public TrackSimplified[] findTracks(){
         try {
@@ -50,7 +48,7 @@ public class ApplicationProxy {
         }
     }
 
-    public Optional<TrackSimplified> selectTrack() {
+    public TrackSimplified[] selectTracksFrom(){
         TrackSimplified[] tracks = new TrackSimplified[0];
 
         boolean isBreak = false;
@@ -85,6 +83,10 @@ public class ApplicationProxy {
             }
         } while (!isBreak);
 
+        return tracks;
+    }
+
+    public Optional<TrackSimplified> selectTrack(TrackSimplified[] tracks) {
         if(tracks.length > 0){
             consoleService.show("Введите номер выбранной песни. Для отмены выберите последний пункт");
             showTracks(tracks);
@@ -106,7 +108,6 @@ public class ApplicationProxy {
 
     public PlaylistSimplified[] getCurrentPlaylists(){
         try {
-
             return spotifyMusicService.getListOfCurrentUsersPlaylists().getItems();
         } catch (SpotifyWebApiException | IOException ex) {
             show(ex.getMessage());
@@ -117,21 +118,23 @@ public class ApplicationProxy {
 
     public Optional<PlaylistSimplified> selectPlaylist() {
         PlaylistSimplified[] playlists = getCurrentPlaylists();
-        consoleService.show(String.format("Введите номер желаемого плейлиста или %d для создания нового. Для отмены выберите последний пункт", playlists.length));
+        consoleService.show(String.format("Введите номер желаемого плейлиста или %d для создания нового. Для отмены выберите последний пункт", playlists.length+1));
 
-        showPlaylist(playlists);
-        consoleService.show(String.format("%d) Создать новый плейлист", playlists.length+1));
-        consoleService.show(String.format("%d) Отмена добавления песни", playlists.length+2));
-        Integer selectedPlayList = TypeConverter.tryParseInt(consoleService.input());
+        if(playlists.length > 0){
+            showPlaylist(playlists);
+            consoleService.show(String.format("%d) Создать новый плейлист", playlists.length+1));
+            consoleService.show(String.format("%d) Отмена действия", playlists.length+2));
+            Integer selectedPlayList = TypeConverter.tryParseInt(consoleService.input());
 
-        if(selectedPlayList != null){
-            selectedPlayList--;
+            if(selectedPlayList != null){
+                selectedPlayList--;
 
-            if(selectedPlayList >= 0 && selectedPlayList <= playlists.length + 1){
-                if(selectedPlayList != playlists.length && selectedPlayList != playlists.length + 1){
-                    return Optional.of(playlists[selectedPlayList]);
-                } else if (selectedPlayList == playlists.length){
-                    return createNewPlaylist().map(TypeConverter::convertPlaylistToSimplified);
+                if(selectedPlayList >= 0 && selectedPlayList <= playlists.length + 1){
+                    if(selectedPlayList != playlists.length && selectedPlayList != playlists.length + 1){
+                        return Optional.of(playlists[selectedPlayList]);
+                    } else if (selectedPlayList == playlists.length){
+                        return createNewPlaylist().map(TypeConverter::convertPlaylistToSimplified);
+                    }
                 }
             }
         }
@@ -193,6 +196,29 @@ public class ApplicationProxy {
         }
     }
 
+    public TrackSimplified[] getTracksFromPlayList(PlaylistSimplified playlist) {
+        try {
+            return Arrays
+                    .stream(spotifyMusicService.getTracksFromPlaylist(playlist.getId()))
+                    .map(TypeConverter::convertTrackToSimplified)
+                    .toArray(TrackSimplified[]::new);
+
+        } catch (SpotifyWebApiException | IOException ex) {
+            show(ex.getMessage());
+            return new TrackSimplified[0];
+        }
+    }
+
+    public Optional<TrackSimplified> removeTrackFromPlaylist(PlaylistSimplified playlist, TrackSimplified track) {
+        try{
+            spotifyMusicService.removeTrackFromPlaylist(playlist.getId(), track.getUri());
+            return Optional.of(track);
+        } catch (SpotifyWebApiException | IOException ex) {
+            show(ex.getMessage());
+            return Optional.empty();
+        }
+    }
+
     public void showTracks(TrackSimplified[] tracks){
         for(int i = 0; i < tracks.length; i++){
             consoleService.show(String.format(TRACK_OUTPUT_PATTERN,
@@ -233,8 +259,10 @@ public class ApplicationProxy {
 
                 Integer selectedParam = TypeConverter.tryParseInt(input());
 
-                if(selectedParam != null && (selectedParam == 1 || selectedParam == 2)) {
-                    return selectedParam == 1 ? getMusicRecommendationsByArtists() : getMusicRecommendationsByTrack();
+                if(selectedParam != null){
+                    if(selectedParam == 1 || selectedParam == 2) {
+                        return selectedParam == 1 ? getMusicRecommendationsByArtists() : getMusicRecommendationsByTrack();
+                    }
                 }
 
                 show("Неверный входной формат!");

@@ -1,5 +1,8 @@
 package tpo.services;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.neovisionaries.i18n.CountryCode;
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.SpotifyHttpManager;
@@ -11,13 +14,12 @@ import com.wrapper.spotify.requests.authorization.authorization_code.Authorizati
 import com.wrapper.spotify.requests.data.browse.GetRecommendationsRequest;
 import com.wrapper.spotify.requests.data.personalization.simplified.GetUsersTopArtistsRequest;
 import com.wrapper.spotify.requests.data.personalization.simplified.GetUsersTopTracksRequest;
-import com.wrapper.spotify.requests.data.playlists.AddTracksToPlaylistRequest;
-import com.wrapper.spotify.requests.data.playlists.CreatePlaylistRequest;
-import com.wrapper.spotify.requests.data.playlists.GetListOfCurrentUsersPlaylistsRequest;
+import com.wrapper.spotify.requests.data.playlists.*;
 import com.wrapper.spotify.requests.data.search.simplified.SearchTracksRequest;
 import com.wrapper.spotify.requests.data.users_profile.GetCurrentUsersProfileRequest;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class SpotifyMusicService {
     private SpotifyApi spotifyApi;
@@ -106,6 +108,27 @@ public class SpotifyMusicService {
                 .build();
 
         return getRecommendationsRequest.execute().getTracks();
+    }
+
+    public Track[] getTracksFromPlaylist(String playlistId) throws IOException, SpotifyWebApiException {
+        GetPlaylistsTracksRequest getPlaylistsTracksRequest = spotifyApi
+                .getPlaylistsTracks(playlistId)
+                .build();
+
+        return Arrays
+                .stream(getPlaylistsTracksRequest.execute().getItems())
+                .map(PlaylistTrack::getTrack)
+                .toArray(Track[]::new);
+    }
+
+    public void removeTrackFromPlaylist(String playlistId, String trackUri) throws IOException, SpotifyWebApiException {
+        JsonArray jsonArray = new JsonParser().parse(String.format("[{\"uri\":\"%s\"}]", trackUri)).getAsJsonArray();
+
+        RemoveTracksFromPlaylistRequest removeTracksFromPlaylistRequest = spotifyApi
+                .removeTracksFromPlaylist(playlistId, jsonArray)
+                .build();
+
+        removeTracksFromPlaylistRequest.execute();
     }
 
     private void setExtraSpotifyApiParams(String code) {

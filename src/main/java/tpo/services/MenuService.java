@@ -16,33 +16,50 @@ public class MenuService {
         setConsoleCommands();
     }
 
-    public void Run() {
+    public Boolean Run() {
         applicationProxy.show("Введите команду для начала работы!");
+        Boolean isExit;
 
         do {
-            executeCommand(applicationProxy.input());
-            applicationProxy.show("Выполнение команды завершено, для продолжения введите следующую команду");
-        } while (true);
+            String command = applicationProxy.input();
+            applicationProxy.clear();
+
+            isExit = executeCommand(command);
+            if (!isExit){
+                applicationProxy.show("Выполнение команды завершено, для продолжения введите следующую команду");
+            } else {
+                applicationProxy.show("Завершение работы программы!");
+            }
+
+        } while (!isExit);
+
+        return isExit;
     }
 
-    private void executeCommand(String command) {
+    private Boolean executeCommand(String command) {
+        Boolean isExit;
         command = command.toLowerCase().strip();
 
         if(consoleCommands.containsKey(command)){
-            consoleCommands.get(command).execute(applicationProxy);
+            isExit = consoleCommands.get(command).execute(applicationProxy);
 
         } else {
             applicationProxy.show(String.format("Команды %s не существует!", command));
+            isExit = false;
         }
+
+        return isExit;
     }
 
     private void setConsoleCommands(){
         consoleCommands.put("exit", new ExitCommand());
         consoleCommands.put("help", new ConsoleCommand() {
             @Override
-            public void execute(ApplicationProxy applicationProxy) {
+            public Boolean execute(ApplicationProxy applicationProxy) {
                 consoleCommands
                         .forEach((commandName, consoleCommand) -> applicationProxy.show(String.format("%s - %s", commandName, consoleCommand.getCommandInfo())));
+
+                return false;
             }
 
             @Override
@@ -57,5 +74,7 @@ public class MenuService {
         consoleCommands.put("top_track", new ShowTopTracks());
         consoleCommands.put("top_artist", new ShowTopArtists());
         consoleCommands.put("r_tracks", new ShowMusicRecommendations());
+        consoleCommands.put("remove_t", new RemoveTrackFromPlaylist());
+        consoleCommands.put("show_tracks", new ShowTracksFromPlaylist());
     }
 }
